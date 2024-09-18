@@ -59,10 +59,10 @@ pub struct Config {
     #[serde(deserialize_with = "deserialize_enabled_bool")]
     pub wps_state: bool,
     pub wpa: i32,
-    pub ket_mgmt: String,
+    pub key_mgmt: String,
     pub group_cipher: String,
     pub rsn_pairwise_cipher: String,
-    pub wpa_pairwise_cipher: String,
+    // pub wpa_pairwise_cipher: String,
 }
 
 impl Config {
@@ -77,14 +77,19 @@ impl Config {
             })?;
 
         Ok(config.try_deserialize::<Config>().unwrap())
-    }
+        }
 }
 
 fn deserialize_enabled_bool<'de, D>(deserializer: D) -> std::result::Result<bool, D::Error>
 where
     D: de::Deserializer<'de>,
 {
-    let s: &str = de::Deserialize::deserialize(deserializer)?;
+
+    let s: String = de::Deserialize::deserialize(deserializer).map_err(
+        |e| dbg!(e)
+    )?;
+    let s = s.as_str();
+
 
     match s {
         "enabled" => Ok(true),
